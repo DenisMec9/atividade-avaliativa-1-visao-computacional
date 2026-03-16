@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+    <h1>Analisar imagem de area restrita</h1>
+    <p>Envie uma imagem para detectar pessoas e objetos no ambiente.</p>
+
+    <form method="post" enctype="multipart/form-data" class="upload-form">
+        <input type="file" name="image" accept="image/png,image/jpeg,image/webp" required>
+        <button type="submit" class="btn primary">Executar Inferencia</button>
+    </form>
+
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %}
+</section>
+
+{% if result %}
+<section class="result-grid">
+    <article class="card highlight">
+        <h2>Resultado da Analise</h2>
+        <p><strong>Arquivo:</strong> {{ result.filename }}</p>
+        <p><strong>Deteccoes totais:</strong> {{ result.total_detections }}</p>
+        <p><strong>Pessoas detectadas:</strong> {{ result.person_count }}</p>
+        <p><strong>Limiar para pessoa:</strong> {{ result.threshold }}</p>
+        {% if result.restricted_risk %}
+            <p class="status danger">Risco: PRESENCA DE PESSOA EM AREA RESTRITA</p>
+        {% else %}
+            <p class="status success">Risco: AREA SEM PRESENCA DE PESSOAS</p>
+        {% endif %}
+    </article>
+
+    <article class="card">
+        <h3>Objetos detectados</h3>
+        <ul class="list">
+            {% for obj in result.objects %}
+                <li>{{ obj.label }} - score {{ obj.score }}</li>
+            {% endfor %}
+        </ul>
+    </article>
+</section>
+
+<section class="images">
+    <article class="card">
+        <h3>Imagem original</h3>
+        <img src="{{ result.original_url }}" alt="Imagem original enviada">
+    </article>
+    <article class="card">
+        <h3>Imagem anotada</h3>
+        <img src="{{ result.annotated_url }}" alt="Imagem com deteccoes">
+    </article>
+</section>
+{% endif %}
+{% endblock %}

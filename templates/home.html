@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+    <p class="eyebrow">Visao Computacional Aplicada</p>
+    <h1>Monitoramento de area restrita com deteccao de pessoas</h1>
+    <p>
+        Esta aplicacao simula um cenario real de seguranca industrial: ao enviar uma imagem,
+        o sistema detecta objetos e informa se ha pessoas em uma zona controlada.
+    </p>
+    <div class="actions">
+        <a href="/analisar" class="btn primary">Iniciar Analise</a>
+        <a href="/sobre" class="btn secondary">Ver Caso de Uso</a>
+    </div>
+</section>
+
+<section class="grid-cards">
+    <article class="card">
+        <h3>Problema Real</h3>
+        <p>Controle de acesso visual em areas com risco operacional.</p>
+    </article>
+    <article class="card">
+        <h3>Modelo IA</h3>
+        <p>facebook/detr-resnet-50 (Hugging Face) para deteccao de objetos.</p>
+    </article>
+    <article class="card">
+        <h3>Saida da Inferencia</h3>
+        <p>Imagem anotada + resumo com contagem de pessoas e nivel de risco.</p>
+    </article>
+</section>
+{% endblock %}
