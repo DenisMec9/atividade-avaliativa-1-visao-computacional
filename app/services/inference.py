@@ -1,19 +1,22 @@
 from __future__ import annotations
 
 from functools import lru_cache
+import os
 from typing import Any
 
 from PIL import Image, ImageDraw
 from transformers import pipeline
 
 PERSON_THRESHOLD = 0.7
+MODEL_NAME = os.getenv("HF_MODEL_ID", "hustvl/yolos-tiny")
 
 
 @lru_cache(maxsize=1)
 def get_detector():
     return pipeline(
         task="object-detection",
-        model="facebook/detr-resnet-50",
+        model=MODEL_NAME,
+        device=-1,
     )
 
 
@@ -61,4 +64,5 @@ def run_detection(image: Image.Image) -> dict[str, Any]:
         "total_detections": len(predictions),
         "objects": sorted(objects, key=lambda item: item["score"], reverse=True),
         "threshold": PERSON_THRESHOLD,
+        "model_name": MODEL_NAME,
     }

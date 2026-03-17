@@ -4,7 +4,7 @@ Aplicacao web com visao computacional para detectar pessoas em imagens e sinaliz
 
 ## Sobre o projeto
 
-Este projeto foi desenvolvido com FastAPI e Jinja2, com inferencia de IA usando o modelo `facebook/detr-resnet-50` (Hugging Face).
+Este projeto foi desenvolvido com FastAPI e Jinja2, com inferencia de IA usando o modelo `hustvl/yolos-tiny` (Hugging Face).
 
 Fluxo principal:
 1. Usuario envia uma imagem na tela de analise.
