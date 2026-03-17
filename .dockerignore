@@ -1,0 +1,13 @@
+.git
+.gitignore
+.venv
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+smoke_test.png
+smoke_valid.jpg
+static/generated/*
+README_COMPARTILHAR.docx
