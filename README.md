@@ -1,10 +1,10 @@
-# Area Segura CV
+﻿# Area Segura CV
 
 Aplicacao web com visao computacional para detectar pessoas em imagens e sinalizar risco em area restrita.
 
 ## Sobre o projeto
 
-Este projeto foi desenvolvido com FastAPI e Jinja2, com inferencia de IA usando o modelo `hustvl/yolos-tiny` (Hugging Face).
+Este projeto foi desenvolvido com FastAPI e Jinja2, com inferencia de IA usando o modelo hustvl/yolos-tiny no deploy da Render.
 
 Fluxo principal:
 1. Usuario envia uma imagem na tela de analise.
@@ -17,7 +17,16 @@ Fluxo principal:
 Deteccao de pessoas em area restrita (cenario industrial).
 
 Regra atual:
-- Se pelo menos 1 pessoa for detectada com score >= 0.70, o sistema considera risco.
+- Se pelo menos 1 pessoa for detectada com score maior ou igual a 0.70, o sistema considera risco.
+
+## Requisitos da atividade
+
+- 2 ou 3 telas web (Inicio, Analisar, Sobre)
+- Front-end web com HTML/CSS
+- Back-end em Python com FastAPI
+- Inferencia de visao computacional com modelo pronto
+- Fluxo principal funcional de upload e resultado
+- Execucao com Docker
 
 ## Tecnologias
 
@@ -25,113 +34,79 @@ Regra atual:
 - FastAPI
 - Uvicorn
 - Jinja2
-- Transformers (Hugging Face)
+- Transformers
 - PyTorch
 - Pillow
 
 ## Estrutura do projeto
 
-```text
 app/
-  main.py                 # Rotas e paginas
-  services/inference.py   # Pipeline de deteccao e regra de risco
-templates/                # Paginas HTML
-static/css/               # Estilos
-static/generated/         # Imagens geradas (originais e anotadas)
+  main.py
+  services/inference.py
+templates/
+static/css/
+static/generated/
 requirements.txt
 Dockerfile
-```
+render.yaml
 
 ## Rotas da aplicacao
 
-- `GET /` -> pagina inicial
-- `GET /analisar` -> formulario para enviar imagem
-- `POST /analisar` -> executa inferencia e retorna resultado
-- `GET /sobre` -> descricao do caso de uso
+- GET /
+- GET /analisar
+- POST /analisar
+- GET /sobre
 
 ## Como rodar localmente
 
-### Requisitos
-
-- Python 3.11 ou superior
-- `pip` atualizado
-- Conexao com internet no primeiro uso (para baixar o modelo)
-
 ### Windows (PowerShell)
 
-```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 uvicorn app.main:app --reload
-```
 
 ### Linux/macOS (bash)
 
-```bash
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 uvicorn app.main:app --reload
-```
 
-Abra no navegador:
+Acesse no navegador:
+http://127.0.0.1:8000
 
-`http://127.0.0.1:8000`
+## Variaveis opcionais
 
-## Como rodar com Docker
+- PERSON_THRESHOLD: limiar de confianca para considerar pessoa (0.0 a 1.0)
+- HF_MODEL_ID: modelo do Hugging Face para deteccao
 
-```bash
-docker build -t area-segura-cv .
-docker run --rm -p 8000:8000 area-segura-cv
-```
+Exemplo:
+PERSON_THRESHOLD=0.75
 
-Abra no navegador:
+## Deploy na Render
 
-`http://127.0.0.1:8000`
+O projeto esta preparado para deploy via Blueprint com o arquivo render.yaml.
 
-## Deploy na nuvem (Render)
-
-Este projeto ja esta preparado para deploy com Docker no Render usando o arquivo `render.yaml`.
-
-Passo a passo:
-1. Suba o projeto para um repositorio no GitHub.
-2. Acesse o Render e clique em New + -> Blueprint.
-3. Selecione o repositorio.
-4. O Render vai ler o `render.yaml` e criar o servico web automaticamente.
-5. Aguarde o primeiro deploy finalizar.
-6. Abra a URL publica gerada pelo Render.
-
-Observacoes:
-- O primeiro acesso pode ser mais lento porque o modelo de IA e baixado na primeira inferencia.
-- Em plano gratuito, o servico pode entrar em sleep quando ficar sem uso.
-- Se quiser reduzir erros de timeout no primeiro uso, considere plano pago ou fazer warm-up apos deploy.
-
-## Validacao de funcionamento
-
-Teste local realizado:
-- `GET /` -> 200
-- `GET /analisar` -> 200
-- `GET /sobre` -> 200
-- `POST /analisar` com imagem valida -> 200
+Passos:
+1. Conectar repositorio no Render.
+2. Criar Blueprint usando render.yaml.
+3. Aguardar deploy.
+4. Abrir URL publica gerada.
 
 ## Observacoes importantes
 
-- A primeira inferencia pode demorar mais por causa do download/carregamento do modelo.
-- As imagens de entrada e saida sao salvas em `static/generated/`.
-- Formatos aceitos no upload: JPG, PNG e WEBP.
+- No plano free, a instancia pode hibernar por inatividade.
+- A pasta static/generated nao e persistente em reinicios.
+- O primeiro uso pode demorar mais por download inicial de modelo.
 
 ## Integrantes
 
-- Integrante 1: NOME COMPLETO
-- Integrante 2: NOME COMPLETO
-- Integrante 3: NOME COMPLETO
-- Integrante 4: NOME COMPLETO
-- Integrante 5: NOME COMPLETO
-- Integrante 6: NOME COMPLETO
-
-## Repositorio
-
-- Link: COLOQUE_O_LINK_DO_GITHUB_AQUI
+- Denis Barbosa
+- Mateus Santiago
+- Vitoria Iorhana
+- Joao Victor
+- Lucas Menezes
+- Mayara Roberta

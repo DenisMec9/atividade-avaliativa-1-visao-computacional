@@ -7,7 +7,16 @@ from typing import Any
 from PIL import Image, ImageDraw
 from transformers import pipeline
 
-PERSON_THRESHOLD = 0.7
+def _get_person_threshold() -> float:
+    env_value = os.getenv("PERSON_THRESHOLD", "0.7")
+    try:
+        parsed = float(env_value)
+    except ValueError:
+        return 0.7
+    return max(0.0, min(parsed, 1.0))
+
+
+PERSON_THRESHOLD = _get_person_threshold()
 MODEL_NAME = os.getenv("HF_MODEL_ID", "hustvl/yolos-tiny")
 
 
@@ -29,6 +38,7 @@ def run_detection(image: Image.Image) -> dict[str, Any]:
 
     objects = []
     person_count = 0
+    object_counts: dict[str, int] = {}
 
     for pred in predictions:
         label = pred["label"].lower()
@@ -39,6 +49,8 @@ def run_detection(image: Image.Image) -> dict[str, Any]:
         is_person = label == "person" and score >= PERSON_THRESHOLD
         if is_person:
             person_count += 1
+
+        object_counts[label] = object_counts.get(label, 0) + 1
 
         color = "#e63946" if is_person else "#2a9d8f"
         draw.rectangle(box_coords, outline=color, width=3)
@@ -63,6 +75,7 @@ def run_detection(image: Image.Image) -> dict[str, Any]:
         "restricted_risk": person_count > 0,
         "total_detections": len(predictions),
         "objects": sorted(objects, key=lambda item: item["score"], reverse=True),
+        "object_counts": dict(sorted(object_counts.items(), key=lambda item: item[1], reverse=True)),
         "threshold": PERSON_THRESHOLD,
         "model_name": MODEL_NAME,
     }

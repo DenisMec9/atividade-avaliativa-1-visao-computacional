@@ -1,12 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
 <section class="panel">
-    <h1>Analisar imagem de area restrita</h1>
+    <h1>Analisar imagem de área restrita</h1>
     <p>Envie uma imagem para detectar pessoas e objetos no ambiente.</p>
+    <p class="note">Formatos aceitos: JPG, PNG e WEBP. O risco é marcado quando pessoa >= {{ result.threshold if result else 0.7 }}.</p>
 
     <form method="post" enctype="multipart/form-data" class="upload-form">
         <input type="file" name="image" accept="image/png,image/jpeg,image/webp" required>
-        <button type="submit" class="btn primary">Executar Inferencia</button>
+        <button type="submit" class="btn primary">Executar Inferência</button>
     </form>
 
     {% if error %}
@@ -17,23 +18,32 @@
 {% if result %}
 <section class="result-grid">
     <article class="card highlight">
-        <h2>Resultado da Analise</h2>
+        <h2>Resultado da Análise</h2>
         <p><strong>Arquivo:</strong> {{ result.filename }}</p>
-        <p><strong>Deteccoes totais:</strong> {{ result.total_detections }}</p>
+        <p><strong>Detecções totais:</strong> {{ result.total_detections }}</p>
         <p><strong>Pessoas detectadas:</strong> {{ result.person_count }}</p>
         <p><strong>Limiar para pessoa:</strong> {{ result.threshold }}</p>
         {% if result.restricted_risk %}
-            <p class="status danger">Risco: PRESENCA DE PESSOA EM AREA RESTRITA</p>
+            <p class="status danger">Risco: PRESENÇA DE PESSOA EM ÁREA RESTRITA</p>
         {% else %}
-            <p class="status success">Risco: AREA SEM PRESENCA DE PESSOAS</p>
+            <p class="status success">Risco: ÁREA SEM PRESENÇA DE PESSOAS</p>
         {% endif %}
+    </article>
+
+    <article class="card">
+        <h3>Resumo por classe</h3>
+        <div class="tag-list">
+            {% for label, amount in result.object_counts.items() %}
+                <span class="tag">{{ label }}: {{ amount }}</span>
+            {% endfor %}
+        </div>
     </article>
 
     <article class="card">
         <h3>Objetos detectados</h3>
         <ul class="list">
             {% for obj in result.objects %}
-                <li>{{ obj.label }} - score {{ obj.score }}</li>
+                <li class="{% if obj.is_person %}person-item{% endif %}">{{ obj.label }} - score {{ obj.score }}</li>
             {% endfor %}
         </ul>
     </article>
@@ -46,7 +56,7 @@
     </article>
     <article class="card">
         <h3>Imagem anotada</h3>
-        <img src="{{ result.annotated_url }}" alt="Imagem com deteccoes">
+        <img src="{{ result.annotated_url }}" alt="Imagem com detecções">
     </article>
 </section>
 {% endif %}

@@ -7,7 +7,7 @@ from fastapi import FastAPI, File, Request, UploadFile
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 
 from .services.inference import run_detection
 
@@ -15,9 +15,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_DIR = BASE_DIR / "static"
 GENERATED_DIR = STATIC_DIR / "generated"
 
-app = FastAPI(title="Area Segura CV")
+app = FastAPI(title="Área Segura CV")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
+
+ALLOWED_CONTENT_TYPES = {
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "image/webp": ".webp",
+}
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -26,7 +32,7 @@ async def home(request: Request) -> HTMLResponse:
         "home.html",
         {
             "request": request,
-            "title": "Area Segura CV",
+            "title": "Área Segura CV",
         },
     )
 
@@ -63,30 +69,56 @@ async def analyze_image(request: Request, image: UploadFile = File(...)) -> HTML
             status_code=400,
         )
 
-    if image.content_type not in {"image/jpeg", "image/png", "image/webp"}:
+    if image.content_type not in ALLOWED_CONTENT_TYPES:
         return templates.TemplateResponse(
             "analyze.html",
             {
                 "request": request,
                 "title": "Analisar Imagem",
                 "result": None,
-                "error": "Formato invalido. Envie JPG, PNG ou WEBP.",
+                "error": "Formato inválido. Envie JPG, PNG ou WEBP.",
             },
             status_code=400,
         )
 
     file_bytes = await image.read()
     image_id = uuid4().hex
-    extension = Path(image.filename).suffix.lower() or ".jpg"
+    extension = ALLOWED_CONTENT_TYPES.get(image.content_type or "", ".jpg")
 
     GENERATED_DIR.mkdir(parents=True, exist_ok=True)
 
     original_path = GENERATED_DIR / f"{image_id}_original{extension}"
     original_path.write_bytes(file_bytes)
 
-    pil_image = Image.open(original_path).convert("RGB")
+    try:
+        pil_image = Image.open(original_path).convert("RGB")
+    except (UnidentifiedImageError, OSError):
+        original_path.unlink(missing_ok=True)
+        return templates.TemplateResponse(
+            "analyze.html",
+            {
+                "request": request,
+                "title": "Analisar Imagem",
+                "result": None,
+                "error": "Não foi possível ler a imagem enviada. Tente outro arquivo.",
+            },
+            status_code=400,
+        )
 
-    detection = run_detection(pil_image)
+    try:
+        detection = run_detection(pil_image)
+    except Exception:
+        original_path.unlink(missing_ok=True)
+        return templates.TemplateResponse(
+            "analyze.html",
+            {
+                "request": request,
+                "title": "Analisar Imagem",
+                "result": None,
+                "error": "Falha ao executar a inferência. Tente novamente em instantes.",
+            },
+            status_code=500,
+        )
 
     annotated_path = GENERATED_DIR / f"{image_id}_detectado.jpg"
     detection["annotated_image"].save(annotated_path, format="JPEG", quality=92)
@@ -98,6 +130,7 @@ async def analyze_image(request: Request, image: UploadFile = File(...)) -> HTML
         "total_detections": detection["total_detections"],
         "restricted_risk": detection["restricted_risk"],
         "objects": detection["objects"],
+        "object_counts": detection["object_counts"],
         "threshold": detection["threshold"],
         "original_url": f"/static/generated/{original_path.name}",
         "annotated_url": f"/static/generated/{annotated_path.name}",
