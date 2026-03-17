@@ -5,3 +5,14 @@ services:
     plan: free
     autoDeploy: true
     healthCheckPath: /
+    envVars:
+      - key: PERSON_THRESHOLD
+        value: "0.75"
+      - key: DETECTION_SCORE_THRESHOLD
+        value: "0.68"
+      - key: NMS_IOU_THRESHOLD
+        value: "0.40"
+      - key: MIN_BOX_AREA_RATIO
+        value: "0.002"
+      - key: ENABLE_FLIP_TTA
+        value: "true"

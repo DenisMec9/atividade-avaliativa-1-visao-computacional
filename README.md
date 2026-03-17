@@ -81,7 +81,35 @@ http://127.0.0.1:8000
 ## Variaveis opcionais
 
 - PERSON_THRESHOLD: limiar de confianca para considerar pessoa (0.0 a 1.0)
+- DETECTION_SCORE_THRESHOLD: score minimo para exibir deteccoes (0.0 a 1.0)
+- NMS_IOU_THRESHOLD: limiar de IoU para remover caixas duplicadas da mesma classe (0.0 a 1.0)
+- MIN_BOX_AREA_RATIO: area minima relativa da caixa para filtrar ruido (0.0 a 1.0)
+- ENABLE_FLIP_TTA: ativa inferencia extra com espelhamento horizontal (true/false)
 - HF_MODEL_ID: modelo do Hugging Face para deteccao
+
+## Presets recomendados
+
+### 1) Fotos com muitas pessoas (mais conservador)
+
+Reduz caixas duplicadas e falsos positivos.
+
+- PERSON_THRESHOLD=0.75
+- DETECTION_SCORE_THRESHOLD=0.68
+- NMS_IOU_THRESHOLD=0.40
+- MIN_BOX_AREA_RATIO=0.002
+- ENABLE_FLIP_TTA=true
+
+### 2) Nao perder pessoas (mais sensivel)
+
+Prioriza recall, podendo aumentar um pouco o ruido.
+
+- PERSON_THRESHOLD=0.65
+- DETECTION_SCORE_THRESHOLD=0.55
+- NMS_IOU_THRESHOLD=0.50
+- MIN_BOX_AREA_RATIO=0.001
+- ENABLE_FLIP_TTA=true
+
+No Render, esses valores podem ser editados em Environment.
 
 Exemplo:
 PERSON_THRESHOLD=0.75
