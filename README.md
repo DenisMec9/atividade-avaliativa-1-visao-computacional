@@ -100,9 +100,9 @@ Abra no navegador:
 
 ## Integrantes
 
-- Integrante 1: NOME COMPLETO
-- Integrante 2: NOME COMPLETO
-- Integrante 3: NOME COMPLETO
-- Integrante 4: NOME COMPLETO
-- Integrante 5: NOME COMPLETO
-- Integrante 6: NOME COMPLETO
+- Integrante 1: Denis Barbosa 
+- Integrante 2: Mateus santiago  
+- Integrante 3: Vitória iorhana
+- Integrante 4: João victor
+- Integrante 5: Lucas menezes 
+- Integrante 6: Mayara roberta 
