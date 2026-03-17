@@ -31,6 +31,11 @@ async def home(request: Request) -> HTMLResponse:
     )
 
 
+@app.head("/")
+async def health_root() -> dict[str, str]:
+    return {"status": "ok"}
+
+
 @app.get("/analisar", response_class=HTMLResponse)
 async def analyze_page(request: Request) -> HTMLResponse:
     return templates.TemplateResponse(
